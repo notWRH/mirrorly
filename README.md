@@ -680,3 +680,5 @@ libraries under the LGPL v3, the Virtual Display Driver under the MIT license
 and Xcode are trademarks of Apple Inc.</sub>
 
 <!-- Build trigger for iPad resolution fix. -->
+
+<!-- Rebuild after artifact naming fix. -->
