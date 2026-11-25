@@ -678,3 +678,5 @@ libraries under the LGPL v3, the Virtual Display Driver under the MIT license
 
 <sub>Mirrorly is not affiliated with or endorsed by Apple Inc. iPhone, iOS, Mac
 and Xcode are trademarks of Apple Inc.</sub>
+
+<!-- Build trigger for iPad resolution fix. -->
