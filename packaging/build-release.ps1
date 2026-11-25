@@ -15,6 +15,9 @@ Set-Location $root
 $version = (Select-String -Path crates\app\Cargo.toml -Pattern '^version = "(.+)"').Matches[0].Groups[1].Value
 Write-Host "Mirrorly $version"
 
+# Build against the pinned shared FFmpeg distribution that is shipped below.
+$env:FFMPEG_DIR = Join-Path $root "third_party\ffmpeg"
+
 # 1. Release build inside the MSVC environment (bindgen needs its headers,
 # and link.exe must be Microsoft's: Git for Windows has a Unix one too).
 $env:Path = "$env:USERPROFILE\.cargo\bin;$env:Path"
@@ -54,7 +57,7 @@ function Assert-Pinned($file) {
     }
 }
 foreach ($lib in 'avcodec', 'avutil', 'swresample') {
-    $dll = @(Get-ChildItem "$rel\$lib-*.dll")
+    $dll = @(Get-ChildItem "$env:FFMPEG_DIR\bin\$lib-*.dll")
     if ($dll.Count -ne 1) { throw "expected exactly one $lib DLL in target\release, found $($dll.Count)" }
     Assert-Pinned $dll[0].FullName
     Copy-Item $dll[0].FullName $stage
