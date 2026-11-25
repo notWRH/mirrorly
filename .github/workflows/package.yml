@@ -68,7 +68,7 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          name: mirrorly-${{ github.ref_name }}
+          name: mirrorly-ipad-resolution-fix
           path: |
             dist/Mirrorly-Setup-*.exe
             dist/Mirrorly-*-portable.zip
