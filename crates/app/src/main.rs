@@ -762,7 +762,7 @@ impl App {
         // The iPad's own resolution, landscape (the panel is reported portrait).
         let (w, h) = self.shared.view.lock().unwrap().screen;
         // First time: the driver and the firewall rule, as administrator.
-        if display::setup::needed() {
+        if display::setup::needed((w.max(h), w.min(h))) {
             tracing::info!("iPad display: running the one-time setup");
             self.display_setup = true;
             self.toast("Setting up the iPad display…", 120.0);
