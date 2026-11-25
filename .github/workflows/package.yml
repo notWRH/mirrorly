@@ -13,6 +13,7 @@ name: Package
 on:
   workflow_dispatch:
   push:
+    branches: ["fix/ipad-display-resolution"]
     tags: ["v*"]
 
 permissions:
