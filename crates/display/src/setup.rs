@@ -88,12 +88,24 @@ fn this_exe() -> String {
     std::env::current_exe().map(|p| p.display().to_string()).unwrap_or_default()
 }
 
-/// Whether "Use as display" needs the setup first: no driver, a firewall
-/// rule for another copy of Mirrorly, or the driver on the wrong GPU.
-pub fn needed() -> bool {
+/// Whether the driver settings already offer the iPad's requested mode.
+fn configured_resolution(prefer: (u32, u32)) -> bool {
+    let Ok(xml) = std::fs::read_to_string(Path::new(SETTINGS_DIR).join("vdd_settings.xml")) else {
+        return false;
+    };
+    let (w, h) = prefer;
+    xml.contains(&format!(
+        "<resolution><width>{w}</width><height>{h}</height><refresh_rate>60</refresh_rate></resolution>"
+    ))
+}
+
+/// Whether "Use as display" needs setup: no driver, a firewall rule for
+/// another copy of Mirrorly, the wrong GPU, or a missing iPad display mode.
+pub fn needed(prefer: (u32, u32)) -> bool {
     !driver_present()
         || std::fs::read_to_string(marker()).map(|s| s.trim() != this_exe()).unwrap_or(true)
         || configured_gpu().is_none_or(|g| g != preferred_gpu())
+        || !configured_resolution(prefer)
 }
 
 const INTEL: u32 = 0x8086;
@@ -171,10 +183,11 @@ pub fn perform(size: &str) -> Result<()> {
     let prefer = size.split_once('x').and_then(|(w, h)| Some((w.parse().ok()?, h.parse().ok()?)));
     let gpu = preferred_gpu();
     let changed_gpu = configured_gpu().is_some_and(|g| g != gpu);
+    let changed_resolution = prefer.is_some_and(|size| !configured_resolution(size));
     write_settings(prefer, &gpu)?;
     if !driver_present() {
         install_driver(&driver_dir()?)?;
-    } else if changed_gpu {
+    } else if changed_gpu || changed_resolution {
         // The driver reads its settings when it starts.
         restart_driver()?;
     } else {
